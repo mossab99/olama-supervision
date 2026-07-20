@@ -26,7 +26,6 @@ final class Olama_Supervision_Plugin {
         }
 
         Olama_Supervision_DB::install();
-        self::add_capabilities();
         update_option('olama_supervision_db_version', OLAMA_SUPERVISION_VERSION);
     }
 
@@ -65,32 +64,7 @@ final class Olama_Supervision_Plugin {
             return;
         }
         Olama_Supervision_DB::install();
-        self::add_capabilities();
         update_option('olama_supervision_db_version', OLAMA_SUPERVISION_VERSION);
-    }
-
-    public static function add_capabilities() {
-        $caps = array(
-            'olama_access_supervision',
-            'olama_manage_supervision_plan',
-            'olama_view_supervision_reports',
-            'olama_view_supervision_analytics',
-            'olama_manage_lesson_planner',
-        );
-        foreach (array('administrator', 'editor', 'supervisor') as $role_name) {
-            $role = get_role($role_name);
-            if ($role) {
-                foreach ($caps as $cap) {
-                    $role->add_cap($cap);
-                }
-            }
-        }
-        foreach (array('author', 'teacher', 'assistant') as $role_name) {
-            $role = get_role($role_name);
-            if ($role) {
-                $role->add_cap('olama_manage_lesson_planner');
-            }
-        }
     }
 
     public function register_capability_group($groups) {
@@ -120,9 +94,6 @@ final class Olama_Supervision_Plugin {
         }
         unset($card);
 
-        $access_capability = Olama_School_Permissions::can('olama_access_supervision')
-            ? 'olama_access_supervision'
-            : 'olama_manage_lesson_planner';
         $cards[] = array(
             'id' => 'olama-supervision',
             'label' => __('Olama Supervision', 'olama-supervision'),
@@ -131,7 +102,7 @@ final class Olama_Supervision_Plugin {
             'accent' => '#4f46e5',
             'accent_rgb' => '79,70,229',
             'active' => true,
-            'capability' => $access_capability,
+            'capability' => 'olama_access_supervision',
             'primary_url' => admin_url('admin.php?page=olama-supervision'),
             'submenus' => array(
                 array('id' => 'supervision.plan', 'label' => __('Plan Visit', 'olama-supervision'), 'icon' => 'dashicons-calendar-alt', 'url' => admin_url('admin.php?page=olama-supervision&tab=plan_visit'), 'capability' => 'olama_manage_supervision_plan', 'color' => '#4f46e5'),
